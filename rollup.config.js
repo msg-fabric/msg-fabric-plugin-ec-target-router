@@ -2,7 +2,7 @@ import rpi_babel from 'rollup-plugin-babel'
 
 const sourcemap = 'inline'
 
-const external = ['msg-fabric-packet-stream', 'ec-pem', 'crypto']
+const external = ['msg-fabric-packet-stream', 'ec-pem', 'crypto', 'url']
 
 const plugins = [jsy_plugin()]
 

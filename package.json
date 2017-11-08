@@ -1,0 +1,44 @@
+{
+  "name": "msg-fabric-plugin-router-ec",
+  "version": "0.1.0",
+  "description": "Eliptic Curve router identity for msg-fabric",
+  "license": "BSD-2-Clause",
+  "author": "Shane Holloway <shane.holloway@ieee.org>",
+  "homepage": "https://github.com/shanewholloway/msg-fabric-plugin-router-ec#readme",
+  "bugs": {
+    "url": "https://github.com/shanewholloway/msg-fabric-plugin-router-ec/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shanewholloway/msg-fabric-plugin-router-ec.git"
+  },
+  "keywords": [
+    "ecosystem:msg-fabric"
+  ],
+  "files": [
+    "dist/",
+    "code/",
+    "test/"
+  ],
+  "main": "dist/plugin-router-ec",
+  "module": "dist/plugin-router-ec.mjs",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-jsy": "^0.9.2",
+    "ec-pem": "^0.17.0",
+    "msg-fabric-packet-stream": "shanewholloway/msg-fabric-packet-stream",
+    "rollup": "^0.50.0",
+    "rollup-plugin-babel": "^3.0.2"
+  },
+  "babel": {
+    "presets": "jsy/lean"
+  },
+  "scripts": {
+    "build": "rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "demo:swim": "babel-node test/swim.jsy",
+    "demo:dht": "babel-node test/swim_with_dht.jsy",
+    "pretest": "npm -s run build",
+    "test": "true"
+  }
+}

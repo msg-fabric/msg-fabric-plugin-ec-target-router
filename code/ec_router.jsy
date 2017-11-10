@@ -5,13 +5,13 @@ import createPacketParser from 'msg-fabric-packet-stream'
 export default function ec_router_plugin(plugin_options={}) ::
   return @: subclass
 
-  function subclass(MessageHub_PI, bases) ::
-    Object.assign @ MessageHub_PI.prototype, @:
+  function subclass(FabricHub_PI, bases) ::
+    Object.assign @ FabricHub_PI.prototype, @:
       packetParser: createPacketParser @ plugin_options
       _parseConnectURL(conn_url) :: return new URL(conn_url)
-      _init_router() :: return new ECMessageRouter()
+      _init_router() :: return new ECRouter()
 
-    class ECMessageRouter extends bases.MessageRouter ::
+    class ECRouter extends bases.Router ::
       constructor() ::
         super()
         initRouterIdentity(this, plugin_options.ec_curve, plugin_options.ec_pem)

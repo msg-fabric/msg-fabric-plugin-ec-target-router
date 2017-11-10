@@ -1,6 +1,6 @@
 {
   "name": "msg-fabric-plugin-router-ec",
-  "version": "0.2.1",
+  "version": "0.4.0",
   "description": "Eliptic Curve router identity for msg-fabric",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -26,7 +26,8 @@
     "babel-cli": "^6.26.0",
     "babel-preset-jsy": "^0.9.2",
     "ec-pem": "^0.17.0",
-    "msg-fabric-packet-stream": "^0.2.0",
+    "msg-fabric-core": "shanewholloway/msg-fabric-core",
+    "msg-fabric-packet-stream": "shanewholloway/msg-fabric-packet-stream",
     "rollup": "^0.50.0",
     "rollup-plugin-babel": "^3.0.2"
   },
@@ -36,8 +37,7 @@
   "scripts": {
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
-    "demo:swim": "babel-node test/swim.jsy",
-    "demo:dht": "babel-node test/swim_with_dht.jsy",
+    "demo": "babel-node test/demo.jsy",
     "pretest": "npm -s run build",
     "test": "true"
   }

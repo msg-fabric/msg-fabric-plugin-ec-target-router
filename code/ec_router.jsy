@@ -7,7 +7,7 @@ export default function ec_router_plugin(plugin_options={}) ::
 
   function subclass(MessageHub_PI, bases) ::
     Object.assign @ MessageHub_PI.prototype, @:
-      _init_packetParser() :: return createPacketParser()
+      packetParser: createPacketParser @ plugin_options
       _parseConnectURL(conn_url) :: return new URL(conn_url)
       _init_router() :: return new ECMessageRouter()
 

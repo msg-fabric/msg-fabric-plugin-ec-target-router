@@ -15,7 +15,6 @@ export default function ec_router_plugin(plugin_options={}) ::
       constructor() ::
         super()
         initRouterIdentity(this, plugin_options.ec_curve, plugin_options.ec_pem)
-        this._initDispatch()
 
 
 ec_router_plugin.initRouterIdentity = initRouterIdentity

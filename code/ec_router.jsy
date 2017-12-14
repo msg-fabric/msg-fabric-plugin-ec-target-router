@@ -3,7 +3,7 @@ import {createECDH, createHmac} from 'crypto'
 import createPacketParser from 'msg-fabric-packet-stream'
 
 export default function ec_router_plugin(plugin_options={}) ::
-  return @: subclass
+  return @: order: -2, subclass
 
   function subclass(FabricHub_PI, bases) ::
     Object.assign @ FabricHub_PI.prototype, @:

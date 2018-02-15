@@ -1,7 +1,7 @@
 {
   "name": "msg-fabric-plugin-router-ec",
   "version": "0.4.0",
-  "description": "Eliptic Curve router identity for msg-fabric",
+  "description": "",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
   "homepage": "https://github.com/shanewholloway/msg-fabric-plugin-router-ec#readme",
@@ -12,33 +12,10 @@
     "type": "git",
     "url": "git+ssh://git@github.com/shanewholloway/msg-fabric-plugin-router-ec.git"
   },
-  "keywords": [
-    "ecosystem:msg-fabric"
-  ],
-  "files": [
-    "dist/",
-    "code/",
-    "test/"
-  ],
-  "main": "dist/plugin-router-ec",
-  "module": "dist/plugin-router-ec.mjs",
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-preset-jsy": "^0.9.4",
-    "ec-pem": "^0.17.0",
-    "msg-fabric-core": "github:shanewholloway/msg-fabric-core",
-    "msg-fabric-packet-stream": "github:shanewholloway/msg-fabric-packet-stream",
-    "rollup": "^0.52.0",
-    "rollup-plugin-babel": "^3.0.2"
-  },
-  "babel": {
-    "presets": "jsy/lean"
-  },
-  "scripts": {
-    "build": "rollup --config",
-    "watch": "npm -s run build -- --watch",
-    "demo": "babel-node test/demo.jsy",
-    "pretest": "npm -s run build",
-    "test": "true"
-  }
+  "keywords": [],
+  "files": ["do-not-use.js"],
+  "main": "do-not-use.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": { }
 }

@@ -1,8 +1,0 @@
-import Hub from 'msg-fabric-core'
-import router_plugin from '../dist/plugin-router-ec'
-
-const TestHub = Hub.plugin @
-  router_plugin()
-
-const hub = new TestHub()
-console.log @ 'ec_pub_id:', hub.router.ec_pub_id

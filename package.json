@@ -1,21 +1,45 @@
 {
-  "name": "msg-fabric-plugin-router-ec",
-  "version": "0.4.0",
-  "description": "",
+  "name": "msg-fabric-plugin-ec-target-router",
+  "version": "0.5.12",
+  "description": "Eliptic Curve target router identity for msg-fabric-core",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
-  "homepage": "https://github.com/shanewholloway/msg-fabric-plugin-router-ec#readme",
+  "homepage": "https://github.com/shanewholloway/msg-fabric-plugin-ec-target-router#readme",
   "bugs": {
-    "url": "https://github.com/shanewholloway/msg-fabric-plugin-router-ec/issues"
+    "url": "https://github.com/shanewholloway/msg-fabric-plugin-ec-target-router/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/shanewholloway/msg-fabric-plugin-router-ec.git"
+    "url": "git+ssh://git@github.com/shanewholloway/msg-fabric-plugin-ec-target-router.git"
   },
-  "keywords": [],
-  "files": ["do-not-use.js"],
-  "main": "do-not-use.js",
-  "dependencies": {},
-  "devDependencies": {},
-  "scripts": { }
+  "keywords": [
+    "ecosystem:msg-fabric"
+  ],
+  "files": [
+    "esm/",
+    "cjs/",
+    "umd/"
+  ],
+  "main": "cjs/plugin-router-ec.js",
+  "module": "esm/plugin-router-ec.js",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-jsy": "^0.10.1",
+    "ec-pem": "^0.17.0",
+    "msg-fabric-core": "^0.5.12",
+    "rollup": "^0.56.3",
+    "rollup-plugin-jsy-babel": "^2.0.0"
+  },
+  "babel": {
+    "presets": "jsy/lean"
+  },
+  "scripts": {
+    "clean": "rm cjs/* esm/* umd/*",
+    "build": "rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "prepublish": "npm -s test",
+    "pretest": "npm -s run build",
+    "test": "true",
+    "demo": "babel-node test/demo.jsy"
+  }
 }

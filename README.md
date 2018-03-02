@@ -1,3 +1,4 @@
-# msg-fabric-plugin-router-ec (deprecated)
+# msg-fabric-plugin-ec-target-router
 
-This package is deprecated.
+Eliptic Curve target router identity for [msg-fabric-core](https://github.com/shanewholloway/msg-fabric-core)
+

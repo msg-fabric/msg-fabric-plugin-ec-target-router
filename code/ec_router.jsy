@@ -1,0 +1,90 @@
+import {createECDH, createHmac} from 'crypto'
+
+const default_options = @{}
+  ec_curve: 'prime256v1'
+
+
+export default ec_target_router_plugin
+export function ec_target_router_plugin(plugin_options={}) ::
+  plugin_options = Object.assign @ {}, default_options, plugin_options
+  const {ec_curve, ec_pem} = plugin_options
+  if ! ec_pem ::
+    throw new Error @ `Plugin requires [ec-pem][1] dependency.\n    [1]: https://www.npmjs.com/package/ec-pem`
+
+  return @: order: -2
+    subclass(FabricHub_PI) ::
+      class ECTargetRouter extends FabricHub_PI.TargetRouter ::
+        constructor(__ignored_id_route, router) ::
+          const [id_route, ec_api] = initECRouteId @ ec_curve, ec_pem
+
+          super(id_route, router)
+          Object.defineProperties @ this, as_prop_api(ec_api)
+
+      FabricHub_PI.TargetRouter = ECTargetRouter
+      FabricHub_PI.prototype.newRouteId = () => null
+
+
+export function initECRouteId(curve, ec_pem) ::
+  const _ec_priv_id_ = createECDH(curve)
+  _ec_priv_id_.curve = curve
+  const ec_pub_id = _ec_priv_id_.generateKeys(null, 'compressed')
+
+  const ec_signed_id = ec_id_sign(ec_pub_id).sign()
+  if ! ec_signed_id_verify(ec_pub_id, ec_signed_id) ::
+    throw new Error @ `ec_pub_id self-verify failed`
+
+  const ec_api = @{}
+    ec_pub_id, ec_pub_id_b64: ec_pub_id.toString('base64')
+    ec_signed_id, ec_signed_id_b64: ec_signed_id.toString('base64')
+    ec_signed_id_verify
+    ec_id_hmac, ec_id_sign, ec_id_verify
+
+  const id_route = ec_pub_id.toString('base64')
+  return @[] id_route, ec_api
+
+
+  function ec_signed_id_verify(ec_pub_other, ec_signed_other) ::
+    if 'string' === typeof ec_pub_other ::
+      ec_pub_other = Buffer(ec_pub_other, 'base64')
+    if 'string' === typeof ec_signed_other ::
+      ec_signed_other = Buffer(ec_signed_other, 'base64')
+    const verify = ec_id_verify(ec_pub_other, ec_pub_other)
+    return ec_signed_other ? verify.verify(ec_signed_other) : verify
+
+  function ec_hmac(ec_pub_other) ::
+    if 'string' === typeof ec_pub_other ::
+      ec_pub_other = Buffer(ec_pub_other, 'base64')
+    const secret = _ec_priv_id_.computeSecret(ec_pub_other)
+    return createHmac('sha256', secret)
+
+  function ec_id_hmac(ec_pub_other, reverse) ::
+    if 'string' === typeof ec_pub_other ::
+      ec_pub_other = Buffer(ec_pub_other, 'base64')
+    return ec_hmac(ec_pub_other)
+      .update @ reverse ? ec_pub_other : ec_pub_id
+      .digest()
+
+  function ec_id_sign(...args) ::
+    return ec_pem.sign(_ec_priv_id_, 'sha256', ...args)
+
+  function ec_id_verify(ec_pub_other, ...args) ::
+    if 'string' === typeof ec_pub_other ::
+      ec_pub_other = Buffer(ec_pub_other, 'base64')
+
+    // see ec-pem.verfiy and crypto.createVerfiy
+    let ec = ec_pub_other
+    if null == ec_pub_other.curve ::
+      ec = Object.assign @ createECDH(curve), @{} curve
+      if ec_pub_other.getPublicKey ::
+        ec.setPublicKey @ ec_pub_other.getPublicKey()
+      else ec.setPublicKey @ ec_pub_other
+
+    return ec_pem.verify(ec, 'sha256', ...args)
+
+
+export function as_prop_api(api) ::
+  const props = {}
+  for const [k,value] of Object.entries(api) ::
+    props[k] = @{} value,
+      enumerable: 'string' === typeof value
+  return props

@@ -1,0 +1,7 @@
+package-lock.json
+test/**/*.iife*
+test/**/*.umd*
+dist/
+cjs/
+esm/
+umd/

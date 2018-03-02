@@ -1,0 +1,17 @@
+import FabricHub from 'msg-fabric-core'
+import pi_ec_target_router from '..'
+const ec_pem = require('ec-pem')
+
+const TestHub = FabricHub.plugin @
+  pi_ec_target_router @: ec_pem
+
+const hub = new TestHub()
+
+console.log @ '\nec_pub_id:',
+  hub.local.ec_pub_id.toString('base64')
+
+console.log @ '\nec_signed_id:',
+  hub.local.ec_signed_id.toString('base64')
+
+console.log()
+console.dir @ hub.local, @{} colors: true

@@ -1,0 +1,92 @@
+import { default_options, fmt_condensed } from './ec_target.jsy'
+import { initECTargetPlugin, bindChallenge } from './ec_target.jsy'
+
+const supported_ec_curves = @{}
+  'P-256': 1,
+  'P-384': 1,
+  'P-521': 1,
+
+export default browser_ec_target_router_plugin
+export function browser_ec_target_router_plugin(plugin_options={}) ::
+  plugin_options = Object.assign @ {}, default_options, plugin_options
+  const webcrypto = plugin_options.webcrypto || crypto.subtle
+  const {ec_curve, hash, explicit} = plugin_options
+  const condensed = fmt_condensed(ec_curve, hash, explicit)
+  const ec_sig_proto = @{} alg:'ECDSA', curve: ec_curve, hash
+
+  const ec_alg = @{} name: 'ECDSA', namedCurve: ec_curve
+  const ecdsa_alg = @{} name: 'ECDSA', hash: @{} name: hash
+
+  if ! supported_ec_curves[ec_curve] ::
+    throw new Error @ `EC Curve "${ec_curve}" is not supported`
+
+  return @:
+    order: -2
+
+    post(hub) ::
+      hub.p2p.registerVerifyRoute @ 'ECDSA',
+        hub.constructor.ECTargetRouter.verifyRouteId
+
+    subclass(FabricHub_PI) ::
+      const data_utils = FabricHub_PI.prototype.data_utils
+      const {random_base64, pack_base64, unpack_base64} = data_utils
+      const challenge_sig = bindChallenge @ true, data_utils
+      const challenge_ver = bindChallenge @ false, data_utils
+
+      return initECTargetPlugin @
+        FabricHub_PI, initECRouteId, ecdsa_verifyRouteId
+        !! plugin_options.asDefault
+
+      function initECRouteId() ::
+        let _ec_priv_ = null
+
+        const ec_pub_id = webcrypto
+          .generateKey @ ec_alg, false, ['sign', 'verify']
+          .then @ ec => @
+            _ec_priv_ = ec.privateKey
+            webcrypto.exportKey @
+              'raw', ec.publicKey
+
+          .then @ ec_pub => @
+            pack_base64 @
+              ec_raw_pubkey_compressed(ec_pub)
+
+        return @[] ec_pub_id, @{}
+          signRouteId: {value: signRouteId}
+
+        async function signRouteId(req_id, channel) ::
+          if null === _ec_priv_ :: await ec_pub_id
+
+          const tag = random_base64(3)
+          const sig = pack_base64 @
+            await webcrypto.sign @
+              ecdsa_alg, _ec_priv_,
+              challenge_sig(req_id, channel, tag)
+
+          return condensed
+            ? @{} alg:'ECDSA', tag, sig, __proto__: ec_sig_proto
+            : @{} alg:'ECDSA', curve: ec_curve, hash, tag, sig
+
+
+      async function ecdsa_verifyRouteId(req_id, channel, id_route, rec) ::
+        const ec_pub = await webcrypto.importKey @
+          'raw', unpack_base64(id_route)
+          @{} name: 'ECDSA', namedCurve: rec.curve || ec_curve
+          false, ['verify']
+
+        const valid = await webcrypto.verify @
+          @{} name: 'ECDSA', hash: @{} name: rec.hash || hash
+          ec_pub, unpack_base64(rec.sig),
+          challenge_ver(req_id, channel, rec.tag)
+
+        return valid ? id_route : false
+
+
+
+export function ec_raw_pubkey_compressed(ec_raw_pubkey) ::
+  const u8full = new Uint8Array(ec_raw_pubkey)
+  const len = u8full.byteLength
+  const u8 = u8full.slice(0, 1 + len >>> 1) // drop `y`
+  u8[0] = 0x2 | (u8full[len-1] & 0x01) // encode sign of `y` in first bit
+  return u8.buffer
+

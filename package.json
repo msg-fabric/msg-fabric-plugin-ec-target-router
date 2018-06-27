@@ -1,6 +1,6 @@
 {
   "name": "msg-fabric-plugin-ec-target-router",
-  "version": "0.5.12",
+  "version": "0.6.0-1",
   "description": "Eliptic Curve target router identity for msg-fabric-core",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -22,13 +22,15 @@
   ],
   "main": "cjs/plugin-router-ec.js",
   "module": "esm/plugin-router-ec.js",
+  "browser": "umd/plugin-router-ec.js",
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-jsy": "^0.10.1",
-    "ec-pem": "^0.17.0",
-    "msg-fabric-core": "^0.5.12",
-    "rollup": "^0.56.3",
-    "rollup-plugin-jsy-babel": "^2.0.0"
+    "babel-preset-jsy": "^0.11.2",
+    "ec-pem": "^0.18.0",
+    "rollup": "^0.61.2",
+    "rollup-plugin-jsy-babel": "^2.1.2",
+    "rollup-plugin-uglify": "^4.0.0",
+    "uglify-es": "3.3.9"
   },
   "babel": {
     "presets": "jsy/lean"
@@ -36,10 +38,12 @@
   "scripts": {
     "clean": "rm cjs/* esm/* umd/*",
     "build": "rollup --config",
-    "watch": "npm -s run build -- --watch",
+    "watch": "rollup --config --watch",
     "prepublish": "npm -s test",
     "pretest": "npm -s run build",
-    "test": "true",
-    "demo": "babel-node test/demo.jsy"
+    "test": "cd test; npm -s run test",
+    "test:install": "cd test; npm -s install",
+    "test:one": "cd test; npm -s run test:one",
+    "test:watch": "cd test; npm -s run test:watch"
   }
 }

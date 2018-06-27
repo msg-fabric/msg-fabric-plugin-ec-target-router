@@ -1,2 +1,5 @@
-export * from './ec_router.jsy'
-export {default as default} from './ec_router.jsy'
+export * from './browser.jsy'
+export * from './node.jsy'
+
+export {default as browser} from './browser.jsy'
+export {default as node, default as default} from './node.jsy'

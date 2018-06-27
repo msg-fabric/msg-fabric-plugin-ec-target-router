@@ -1,0 +1,59 @@
+export const default_options = @{}
+  ec_curve: 'P-256', hash: 'SHA-256', asDefault: true
+
+export function fmt_condensed(ec_curve, hash, explicit) ::
+  if explicit :: return false
+  return @
+    ec_curve === default_options.ec_curve
+      && hash === default_options.hash
+
+export function initECTargetPlugin(FabricHub_PI, initECRouteId, verifyRouteId, asDefault) ::
+  class ECTargetRouter extends FabricHub_PI.TargetRouter ::
+    constructor(__ignored_id_route, router, hub) ::
+      const [id_route, ec_api] = initECRouteId()
+
+      super(id_route, router, hub)
+      Object.defineProperties @ this, ec_api
+
+
+  const hub_api = @{}
+    createECRoute(router) ::
+      const klass = this.constructor
+      return new klass.ECTargetRouter @
+        null, router || this.router, this
+
+    newECRoute() ::
+      const route = this.createECRoute(this.router)
+      this.p2p.publishSignedRoute(route)
+      return route
+
+
+  if asDefault ::
+    Object.assign @ hub_api, @{}
+      _initHubLocalRoute(id_route, router, p2p) ::
+        if id_route ::
+          throw new Error @ `Cannot specify id_route for ECTargetRoute`
+
+        const route = this.createECRoute(router)
+        p2p.publishSignedRoute(route)
+        return route
+
+
+  FabricHub_PI.ECTargetRouter = ECTargetRouter
+  ECTargetRouter.verifyRouteId = verifyRouteId
+  ECTargetRouter.prototype.verifyRouteId = verifyRouteId
+  Object.assign @ FabricHub_PI.prototype, hub_api
+  return ECTargetRouter
+
+
+export function bindChallenge(is_sign, data_utils) ::
+  const {encode_utf8} = data_utils
+  return is_sign
+    ? (req_id, channel, tag) => encode_utf8 @
+        @[] channel.id_remote, req_id, channel.id_local, tag
+        .join('')
+
+    : (req_id, channel, tag) => encode_utf8 @
+        @[] channel.id_local, req_id, channel.id_remote, tag
+        .join('')
+

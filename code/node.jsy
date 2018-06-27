@@ -1,0 +1,74 @@
+import { default_options, fmt_condensed } from './ec_target.jsy'
+import { initECTargetPlugin, bindChallenge } from './ec_target.jsy'
+
+const supported_ec_curves = @{}
+  'P-256': 'prime256v1', 'p-256': 'prime256v1',
+  'P-384': 'secp384r1', 'p-384': 'secp384r1',
+  'P-521': 'secp521r1', 'p-521': 'secp521r1',
+
+const supported_hashes = @{}
+  'SHA-1': 'sha1', 'sha-1': 'sha1',
+  'SHA-256': 'sha256', 'sha-256': 'sha256',
+  'SHA-384': 'sha384', 'sha-384': 'sha384',
+  'SHA-512': 'sha512', 'sha-512': 'sha512',
+
+export default node_ec_target_router_plugin
+export function node_ec_target_router_plugin(plugin_options={}) ::
+  plugin_options = Object.assign @ {}, default_options, plugin_options
+  const {ec_curve, hash, explicit, ec_pem} = plugin_options
+  const condensed = fmt_condensed(ec_curve, hash, explicit)
+  const ec_sig_proto = @{} alg:'ECDSA', curve: ec_curve, hash
+
+  if ! supported_ec_curves[ec_curve] ::
+    throw new Error @ `EC Curve "${ec_curve}" is not supported`
+  if ! ec_pem ::
+    throw new Error @ `Plugin requires [ec-pem][1] dependency.\n    [1]: https://www.npmjs.com/package/ec-pem`
+
+  return @:
+    order: -2
+
+    post(hub) ::
+      hub.p2p.registerVerifyRoute @ 'ECDSA',
+        hub.constructor.ECTargetRouter.verifyRouteId
+
+    subclass(FabricHub_PI) ::
+      const data_utils = FabricHub_PI.prototype.data_utils
+      const {random_base64} = data_utils
+      const challenge_sig = bindChallenge @ true, data_utils
+      const challenge_ver = bindChallenge @ false, data_utils
+
+      return initECTargetPlugin @
+        FabricHub_PI, initECRouteId, ecdsa_verifyRouteId,
+        !! plugin_options.asDefault
+
+      function initECRouteId() ::
+        const curve = supported_ec_curves[ec_curve]
+        const _ec_priv_ = ec_pem.generate(curve)
+        const ec_pub_id = Promise.resolve @
+          _ec_priv_.getPublicKey('base64', 'compressed')
+
+        return @[] ec_pub_id, @{}
+          signRouteId: @{} value: signRouteId
+
+        async function signRouteId(req_id, channel) ::
+          const tag = random_base64(3)
+          const sig = _ec_priv_
+            .sign_ecdsa @ supported_hashes[hash]
+            .update @ challenge_sig(req_id, channel, tag)
+            .sign @ 'base64'
+
+          return condensed
+            ? @{} alg:'ECDSA', tag, sig, __proto__: ec_sig_proto
+            : @{} alg:'ECDSA', curve: ec_curve, hash, tag, sig
+
+
+      async function ecdsa_verifyRouteId(req_id, channel, id_route, rec) ::
+        const ec_pub = ec_pem(supported_ec_curves[rec.curve || ec_curve])
+        ec_pub.setPublicKey @ id_route, 'base64'
+
+        const valid = ec_pub
+          .verify_ecdsa @ supported_hashes[rec.hash || hash]
+          .update @ challenge_ver(req_id, channel, rec.tag)
+          .verify @ rec.sig, 'base64'
+
+        return valid ? id_route : false

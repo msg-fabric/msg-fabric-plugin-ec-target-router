@@ -25,6 +25,7 @@ export function initECTargetPlugin(FabricHub_PI, initECRouteId, verifyRouteId, a
     newECRoute() ::
       const route = this.createECRoute(this.router)
       this.p2p.publishSignedRoute(route)
+      .then @=> this.p2p.publishRoute(route)
       return route
 
 
@@ -36,6 +37,7 @@ export function initECTargetPlugin(FabricHub_PI, initECRouteId, verifyRouteId, a
 
         const route = this.createECRoute(router)
         p2p.publishSignedRoute(route)
+        .then @=> this.p2p.publishRoute(route)
         return route
 
 

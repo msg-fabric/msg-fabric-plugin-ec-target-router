@@ -8,18 +8,26 @@ describe @ 'Static Signature Verification', @=> ::
   it @ 'generate static signature', gen_static_signature
 
   it @ 'from Browser', @=>> ::
-    await ver_static_signature @ 'AmSnkSUslJTqzY1RVH78zlvO8I73MfiFhRB2pqHAcb+M',
-      @{} 'alg': 'ECDSA', 'tag': 'KFpR', 'sig': 'lFC/axQctkavSDmvZEiWa9P9ALaKZG7FfCzdg9pVJRjw6temGHqj7OJbxp1vfsEKL2CVtA5CpbXagWlUHP8iuA=='
+    await ver_static_signature @ "CqyHUXtYCGhR36rX", @{}
+      "alg": "ECDSA", "tag": "WqmJ",
+      "sig": "nlM1oQ6kL3D/yorvKkDD700GCzJiDJ0wJ8g8qK17cz89GG95NFkA+nUOqv0C65Wd7Gqj8YB01x2sC6BzPlwThA==",
+      "ec": "BIrYxG23GWZGkOH97s65rsBlXh7jT/eLbpgLpoGWpWBziFP83Yat10wT8P1bSA8HtEwfuCh2qTBFvwBHc42aAL0="
         
-    await ver_static_signature @ 'As3BEHcwVncZ3+zJ1mBkKkRFPmlzKIkuvrp4Td7+/oMq',
-      @{} 'alg': 'ECDSA', 'tag': 'TINm', 'sig': 'ROdSjqYyrM9O9toUWj0bD0Xj/eMqypASIMQxfEVAcUxBb9p004CvsnboAPrl+e6gGN5rz2+gd0wLCKQ0AiJ3pQ=='
+    await ver_static_signature @ "Mt4W4Y1QZnENmmj3", @{}
+      "alg": "ECDSA", "tag": "2aTM",
+      "sig": "LMJvsLQuLnytWItJAtAgdH6BXnzdMLufmtO150NBXsXFwzTWojB3gKG/6XcWy18sMGr6SCi4QbSimeFMbX8GNg==",
+      "ec": "BLJzlUgroXa8wJ8/GyNFC4A+bReVc/6988jy+U3M9xIohkMzRZmjVjwABrbCkANTsWLPqy29cj53GFXVp4awzM4="
 
   it @ 'from NodeJS', @=>> ::
-    await ver_static_signature @ 'AokQ+h2ukcgRhvX8VW735nAg9bU4ZIjs8Ug07ajP9kwd',
-      @{} 'alg': 'ECDSA', 'tag': 'Nzc5', 'sig': 'pNaRQkw2+bMWXjDlejYow7f0ldZk86LVjW5FZdvlONAnemWiojPX9wBncb59/4p6B1nt6mtIRWrZMxZ2MQjsDA=='
+    await ver_static_signature @ "2SpC8Oq6O7zMskFq", @{}
+      "alg": "ECDSA", "tag": "MCPu",
+      "sig": "VYUzryiSVkdao4a7+sbH9eOevUOLWQdXGyflRVa16NAsoAnxZbPUNDydkHlFYGftVFniEzFuXwsiC44tsybRNA=="
+      "ec": "BNQLyoJIaEuxIZkV3qEUfFUvAXDKGkLA007tC/2kNqzIt0FUoJInEb0xWsnmJjfip+SKChb8M9ASI/U6VhUd7Xg=",
 
-    await ver_static_signature @ 'A0rxj8HVKoduCiXlnsiwZYfsWahFq+J0vpy2/7LTYtWR',
-      @{} 'alg': 'ECDSA', 'tag': 'nlUo', 'sig': 'SVtDxMJOsZGa6BhfC05GFo6eFQ4gpn0y9KCVNDWrnv8XERjSP/LkzakabPvoVAS+5QQvva0rtQPyWM12K85W9w=='
+    await ver_static_signature @ "p6oweq68vVKzaT3F", @{}
+      "alg": "ECDSA", "tag": "fm1x",
+      "sig": "IIAMg+8v1eHL7GLtMYm0TihstZj22AWYR9DA4rDYQdLO/xPDwK0oDnVvqi2AOTiOd/4JIQdflwMI0HZ+Gziweg=="
+      "ec": "BFKLbWQLpau7GN6zYQD1wQgwHoBe0+KQ9+Wr5n9x2leABeduQG5vqdswGzy2591pJtlFJHlU57MYynyfzFRVe7o=",
 
 
   async function ver_static_signature(id_route, rec) ::
@@ -29,9 +37,10 @@ describe @ 'Static Signature Verification', @=> ::
 
   async function gen_static_signature() ::
     const hub = Hub.create()
-    const rec = await hub.local.signRouteId @ req_id, chan_src
+    const ec_route = hub.createECRoute()
+    const rec = await ec_route.signRouteId @ req_id, chan_src
 
-    await ver_static_signature @ hub.local.id_route, rec
+    await ver_static_signature @ ec_route.id_route, rec
 
     if 0 ::
-      console.log @ JSON.stringify @ [hub.local.id_route, rec], null, 2
+      console.log @ JSON.stringify @ [ec_route.id_route, rec], null, 2

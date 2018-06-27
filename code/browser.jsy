@@ -1,13 +1,13 @@
 import { default_options, fmt_condensed } from './ec_target.jsy'
 import { initECTargetPlugin, bindChallenge } from './ec_target.jsy'
 
-const supported_ec_curves = @{}
-  'P-256': 1,
-  'P-384': 1,
-  'P-521': 1,
-
 export default browser_ec_target_router_plugin
 export function browser_ec_target_router_plugin(plugin_options={}) ::
+  const supported_ec_curves = @{}
+    'P-256': 1,
+    'P-384': 1,
+    'P-521': 1,
+
   plugin_options = Object.assign @ {}, default_options, plugin_options
   const webcrypto = plugin_options.webcrypto || crypto.subtle
   const {ec_curve, hash, explicit} = plugin_options
@@ -35,41 +35,39 @@ export function browser_ec_target_router_plugin(plugin_options={}) ::
 
 
       function initECRouteId() ::
-        let _ec_priv_ = null
+        let _ec_ = null, ec_pub = null
+        const _ec_id = webcrypto.generateKey @ ec_alg, false, ['sign', 'verify']
+        const id_route = _ec_id.then @ ec =>
+          id_route_from_pubkey @ ec.publicKey
 
-        const ec_pub_id = webcrypto
-          .generateKey @ ec_alg, false, ['sign', 'verify']
-          .then @ ec => @
-            _ec_priv_ = ec.privateKey
-            webcrypto.exportKey @
-              'raw', ec.publicKey
-
-          .then @ ec_pub => @
-            pack_base64 @
-              ec_raw_pubkey_compressed(ec_pub)
-
-        return @[] ec_pub_id, @{}
+        return @[] id_route, @{}
           signRouteId: {value: signRouteId}
 
         async function signRouteId(req_id, channel) ::
-          if null === _ec_priv_ :: await ec_pub_id
+          if null === _ec_ ::
+            _ec_ = await _ec_id
+            ec_pub = pack_base64 @
+              await webcrypto.exportKey @ 'raw', _ec_.publicKey
 
           const tag = random_base64(3)
           const sig = pack_base64 @
             await webcrypto.sign @
-              ecdsa_alg, _ec_priv_,
+              ecdsa_alg, _ec_.privateKey,
               challenge_sig(req_id, channel, tag)
 
           return condensed
-            ? @{} alg:'ECDSA', tag, sig, __proto__: ec_sig_proto
-            : @{} alg:'ECDSA', curve: ec_curve, hash, tag, sig
+            ? @{} alg:'ECDSA', tag, sig, ec: ec_pub, __proto__: ec_sig_proto
+            : @{} alg:'ECDSA', curve: ec_curve, hash, tag, sig, ec: ec_pub
 
 
       async function ecdsa_verifyRouteId(req_id, channel, id_route, rec) ::
         const ec_pub = await webcrypto.importKey @
-          'raw', unpack_base64(id_route)
+          'raw', unpack_base64(rec.ec)
           @{} name: 'ECDSA', namedCurve: rec.curve || ec_curve
-          false, ['verify']
+          true, ['verify']
+
+        if id_route !== await id_route_from_pubkey(ec_pub) ::
+          return false
 
         const valid = await webcrypto.verify @
           @{} name: 'ECDSA', hash: @{} name: rec.hash || hash
@@ -78,12 +76,8 @@ export function browser_ec_target_router_plugin(plugin_options={}) ::
 
         return valid ? id_route : false
 
-
-
-export function ec_raw_pubkey_compressed(ec_raw_pubkey) ::
-  const u8full = new Uint8Array(ec_raw_pubkey)
-  const len = u8full.byteLength
-  const u8 = u8full.slice(0, 1 + len >>> 1) // drop `y`
-  u8[0] = 0x2 | (u8full[len-1] & 0x01) // encode sign of `y` in first bit
-  return u8.buffer
+      async function id_route_from_pubkey(ec) ::
+        const ec_pub = await webcrypto.exportKey @ 'raw', ec
+        const id_route_buf = await webcrypto.digest @ {name: "SHA-256"}, ec_pub
+        return pack_base64(id_route_buf).slice @ 0, 16 // 96 bits of uniqueness
 

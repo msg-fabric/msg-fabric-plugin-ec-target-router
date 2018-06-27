@@ -1,6 +1,6 @@
 {
   "name": "msg-fabric-plugin-ec-target-router",
-  "version": "0.6.0-1",
+  "version": "0.6.0-2",
   "description": "Eliptic Curve target router identity for msg-fabric-core",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",

@@ -20,22 +20,19 @@ export function browser_ec_target_router_plugin(plugin_options={}) ::
   if ! supported_ec_curves[ec_curve] ::
     throw new Error @ `EC Curve "${ec_curve}" is not supported`
 
-  return @:
-    order: -2
-
-    post(hub) ::
-      hub.p2p.registerVerifyRoute @ 'ECDSA',
-        hub.constructor.ECTargetRouter.verifyRouteId
-
-    subclass(FabricHub_PI) ::
+  return @: order: -2, subclass(FabricHub_PI, hubPluginList) ::
       const data_utils = FabricHub_PI.prototype.data_utils
       const {random_base64, pack_base64, unpack_base64} = data_utils
       const challenge_sig = bindChallenge @ true, data_utils
       const challenge_ver = bindChallenge @ false, data_utils
 
+      hubPluginList.push @ hub => ::
+        hub.p2p.registerVerifyRoute @ 'ECDSA', ecdsa_verifyRouteId
+
       return initECTargetPlugin @
         FabricHub_PI, initECRouteId, ecdsa_verifyRouteId
         !! plugin_options.asDefault
+
 
       function initECRouteId() ::
         let _ec_priv_ = null

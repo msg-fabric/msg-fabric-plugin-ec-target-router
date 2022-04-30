@@ -1,5 +1,7 @@
 # msg-fabric-plugin-ec-target-router
 
+(DEPRECATED) 
+
 Eliptic Curve target router identity for [msg-fabric-core](https://github.com/shanewholloway/msg-fabric-core)
 
 
